@@ -55,3 +55,11 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Docker
+.dockerignore
+
+# Project specific
+scripts/__pycache__/
+*.mp3
+*.wav
+
