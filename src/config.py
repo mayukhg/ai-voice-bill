@@ -51,4 +51,39 @@ class Config:
     # Lambda Configuration
     LAMBDA_FUNCTION_NAME = os.getenv('LAMBDA_FUNCTION_NAME', 'alexa-bill-payment-skill')
     LAMBDA_PROACTIVE_FUNCTION_NAME = os.getenv('LAMBDA_PROACTIVE_FUNCTION_NAME', 'alexa-bill-payment-proactive')
+    
+    # Gen-AI Configuration
+    LLM_PROVIDER = os.getenv('LLM_PROVIDER', 'openai')  # openai, anthropic, bedrock
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
+    ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+    ANTHROPIC_MODEL = os.getenv('ANTHROPIC_MODEL', 'claude-3-opus-20240229')
+    AWS_BEDROCK_MODEL_ID = os.getenv('AWS_BEDROCK_MODEL_ID', 'anthropic.claude-3-opus-20240229')
+    
+    # Emotion Detection Configuration
+    EMOTION_DETECTION_ENABLED = os.getenv('EMOTION_DETECTION_ENABLED', 'True').lower() == 'true'
+    EMOTION_DETECTION_PROVIDER = os.getenv('EMOTION_DETECTION_PROVIDER', 'comprehend')  # comprehend, custom
+    EMOTION_DETECTION_THRESHOLD = float(os.getenv('EMOTION_DETECTION_THRESHOLD', '0.5'))
+    FRUSTRATION_ESCALATION_THRESHOLD = float(os.getenv('FRUSTRATION_ESCALATION_THRESHOLD', '0.8'))
+    
+    # Error Correction Configuration
+    ERROR_CORRECTION_ENABLED = os.getenv('ERROR_CORRECTION_ENABLED', 'True').lower() == 'true'
+    ERROR_CORRECTION_CONFIDENCE_THRESHOLD = float(os.getenv('ERROR_CORRECTION_CONFIDENCE_THRESHOLD', '0.7'))
+    
+    # Dialogue Management Configuration
+    DIALOGUE_CONTEXT_RETENTION_TURNS = int(os.getenv('DIALOGUE_CONTEXT_RETENTION_TURNS', '10'))
+    DIALOGUE_CONTEXT_RETENTION_MINUTES = int(os.getenv('DIALOGUE_CONTEXT_RETENTION_MINUTES', '5'))
+    
+    # Context Storage Configuration
+    CONTEXT_STORAGE_PROVIDER = os.getenv('CONTEXT_STORAGE_PROVIDER', 'dynamodb')  # dynamodb, redis
+    CONTEXT_TABLE = os.getenv('CONTEXT_TABLE', 'conversation_context')
+    ENTITY_TRACKING_TABLE = os.getenv('ENTITY_TRACKING_TABLE', 'entity_tracking')
+    REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+    REDIS_PORT = int(os.getenv('REDIS_PORT', '6379'))
+    REDIS_DB = int(os.getenv('REDIS_DB', '0'))
+    
+    # Performance Configuration
+    LLM_MAX_TOKENS = int(os.getenv('LLM_MAX_TOKENS', '2000'))
+    LLM_TEMPERATURE = float(os.getenv('LLM_TEMPERATURE', '0.7'))
+    LLM_TIMEOUT_SECONDS = int(os.getenv('LLM_TIMEOUT_SECONDS', '10'))
 
