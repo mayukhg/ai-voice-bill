@@ -1,0 +1,114 @@
+{
+  "manifest": {
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:ACCOUNT_ID:function:alexa-bill-payment-skill"
+        },
+        "interfaces": []
+      }
+    },
+    "manifestVersion": "1.0",
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "name": "Bill Payment Assistant",
+          "summary": "Manage and pay your bills hands-free with voice commands. Get proactive reminders and make secure payments with OTP verification.",
+          "description": "Bill Payment Assistant helps you manage and pay your bills using natural voice commands through your Alexa device. Never miss a payment with proactive reminders for bills due within 7 days. Make secure payments hands-free with multi-factor authentication using OTP codes sent to your mobile phone.\n\nKey Features:\n- Get voice reminders for upcoming bills\n- List all your unpaid bills\n- Pay bills securely with OTP verification\n- Check payment history and status\n- Natural conversation flow with Alexa\n\nTo get started, enable the skill and link your account. You'll need to have bills set up in your account to use this service.\n\nSecurity:\n- All payments require OTP verification sent to your registered mobile number\n- Secure OAuth 2.0 account linking\n- Encrypted data storage and transmission\n- No sensitive payment data stored\n\nPrivacy:\n- Your data is encrypted and secure\n- We only access data necessary for bill management\n- See our privacy policy for details",
+          "keywords": [
+            "bills",
+            "payments",
+            "reminders",
+            "utilities",
+            "finance",
+            "banking",
+            "voice payment",
+            "bill management"
+          ],
+          "smallIconUri": "https://your-domain.com/skill-icons/small-icon.png",
+          "largeIconUri": "https://your-domain.com/skill-icons/large-icon.png",
+          "examplePhrases": [
+            "Alexa, open bill payment",
+            "Alexa, what bills are due?",
+            "Alexa, pay my utility bill",
+            "Alexa, check my payment history",
+            "Alexa, list my unpaid bills"
+          ]
+        }
+      },
+      "isAvailableWorldwide": false,
+      "distributionCountries": [
+        "US"
+      ],
+      "testingInstructions": "To test this skill:\n1. Enable the skill in Alexa app\n2. Link your account using OAuth 2.0\n3. Ensure you have test bills in DynamoDB for your user_id\n4. Test with: 'Alexa, open bill payment'\n5. Test bill reminders: 'Alexa, what bills are due?'\n6. Test payment flow: 'Alexa, pay my utility bill'\n7. Test OTP verification by providing the OTP sent to your phone\n8. Test help: 'Alexa, help'\n9. Test cancellation: 'Alexa, cancel'\n\nTest account credentials:\n- User ID: test_user_123\n- Phone: +1234567890 (for OTP testing)\n\nNote: This is a test skill. Real payments are not processed.",
+      "category": "FINANCE",
+      "distributionMode": "PUBLIC"
+    },
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": true,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "locales": {
+        "en-US": {
+          "privacyPolicyUrl": "https://your-domain.com/privacy-policy",
+          "termsOfUseUrl": "https://your-domain.com/terms-of-service"
+        }
+      }
+    },
+    "permissions": [
+      {
+        "name": "alexa::profile:email:read"
+      },
+      {
+        "name": "alexa::profile:name:read"
+      }
+    ],
+    "events": {
+      "publications": [
+        {
+          "eventName": "AMAZON.MessageAlert.Activated"
+        }
+      ],
+      "endpoint": {
+        "uri": "arn:aws:lambda:us-east-1:ACCOUNT_ID:function:alexa-bill-payment-proactive"
+      },
+      "subscriptions": [
+        {
+          "eventName": "SKILL_PROACTIVE_SUBSCRIPTION_CHANGED"
+        }
+      ],
+      "regions": {
+        "NA": {
+          "endpoint": {
+            "uri": "arn:aws:lambda:us-east-1:ACCOUNT_ID:function:alexa-bill-payment-proactive"
+          }
+        }
+      }
+    },
+    "accountLinking": {
+      "clientId": "YOUR_CLIENT_ID",
+      "authorizationUrl": "https://your-domain.com/oauth/authorize",
+      "accessTokenUrl": "https://your-domain.com/oauth/token",
+      "clientSecret": "YOUR_CLIENT_SECRET",
+      "scopes": [
+        "profile",
+        "bills",
+        "payments"
+      ],
+      "domains": [
+        "your-domain.com"
+      ],
+      "skipOnEnablement": false,
+      "type": "AUTH_CODE",
+      "accessTokenScheme": "HTTP_BASIC",
+      "redirectUrls": [
+        "https://pitangui.amazon.com/api/skill/link/YOUR_SKILL_ID",
+        "https://layla.amazon.com/api/skill/link/YOUR_SKILL_ID",
+        "https://alexa.amazon.co.jp/api/skill/link/YOUR_SKILL_ID"
+      ]
+    }
+  }
+}
+

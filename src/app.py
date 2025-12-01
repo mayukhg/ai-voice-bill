@@ -29,6 +29,14 @@ reminder_service = ReminderService()
 payment_service = PaymentService()
 lex_service = LexService()
 
+# Register OAuth routes for account linking
+try:
+    from src.alexa.oauth import create_oauth_routes
+    create_oauth_routes(app)
+    logger.info("OAuth routes registered")
+except ImportError:
+    logger.warning("OAuth module not available")
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""

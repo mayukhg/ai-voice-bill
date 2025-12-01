@@ -5,4 +5,8 @@ python-dotenv==1.0.0
 requests==2.31.0
 pydantic==2.5.0
 python-dateutil==2.8.2
+ask-sdk-core==1.36.0
+ask-sdk-lambda==1.36.0
+ask-sdk-model==1.36.0
+ask-sdk==1.36.0
 

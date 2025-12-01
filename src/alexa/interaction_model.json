@@ -1,0 +1,229 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "bill payment",
+      "intents": [
+        {
+          "name": "GetBillReminders",
+          "samples": [
+            "what bills are due",
+            "do I have any bills due",
+            "show me my due bills",
+            "remind me about my bills",
+            "what bills need to be paid",
+            "tell me about my bills",
+            "what bills are coming up"
+          ],
+          "slots": []
+        },
+        {
+          "name": "PayBill",
+          "samples": [
+            "I want to pay my bill",
+            "pay my bills",
+            "pay bill {BillId}",
+            "I'd like to make a payment",
+            "process payment for {BillId}",
+            "pay my utility bill",
+            "pay my {BillType} bill",
+            "I want to pay {BillId}"
+          ],
+          "slots": [
+            {
+              "name": "BillId",
+              "type": "AMAZON.AlphaNumeric",
+              "samples": [
+                "bill {BillId}",
+                "{BillId}"
+              ]
+            },
+            {
+              "name": "BillType",
+              "type": "AMAZON.SearchQuery",
+              "samples": [
+                "my {BillType} bill",
+                "{BillType}"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "VerifyOTP",
+          "samples": [
+            "my OTP is {OTP}",
+            "the code is {OTP}",
+            "OTP {OTP}",
+            "verification code {OTP}",
+            "the OTP code is {OTP}",
+            "{OTP}",
+            "code {OTP}"
+          ],
+          "slots": [
+            {
+              "name": "OTP",
+              "type": "AMAZON.Number",
+              "samples": [
+                "{OTP}"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "ListBills",
+          "samples": [
+            "list my bills",
+            "show me all my bills",
+            "what are my unpaid bills",
+            "list unpaid bills",
+            "show my bills",
+            "what bills do I have",
+            "all my bills"
+          ],
+          "slots": []
+        },
+        {
+          "name": "PaymentStatus",
+          "samples": [
+            "check payment status",
+            "payment history",
+            "my payment history",
+            "check my payments",
+            "payment status for {PaymentId}",
+            "status of payment {PaymentId}",
+            "what payments have I made"
+          ],
+          "slots": [
+            {
+              "name": "PaymentId",
+              "type": "AMAZON.AlphaNumeric",
+              "samples": [
+                "payment {PaymentId}",
+                "{PaymentId}"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        }
+      ],
+      "types": []
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "PayBill",
+          "confirmationRequired": true,
+          "prompts": {
+            "confirmation": "PayBill.Confirm"
+          },
+          "slots": [
+            {
+              "name": "BillId",
+              "type": "AMAZON.AlphaNumeric",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "PayBill.BillId.Elicit"
+              }
+            },
+            {
+              "name": "BillType",
+              "type": "AMAZON.SearchQuery",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "PayBill.BillType.Elicit"
+              }
+            }
+          ],
+          "delegationStrategy": "ALWAYS"
+        },
+        {
+          "name": "VerifyOTP",
+          "confirmationRequired": false,
+          "slots": [
+            {
+              "name": "OTP",
+              "type": "AMAZON.Number",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "VerifyOTP.OTP.Elicit"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PaymentStatus",
+          "confirmationRequired": false,
+          "slots": [
+            {
+              "name": "PaymentId",
+              "type": "AMAZON.AlphaNumeric",
+              "confirmationRequired": false,
+              "elicitationRequired": false
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "ALWAYS"
+    },
+    "prompts": [
+      {
+        "id": "PayBill.Confirm",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Are you sure you want to pay this bill?"
+          }
+        ]
+      },
+      {
+        "id": "PayBill.BillId.Elicit",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Which bill would you like to pay? Please provide the bill ID."
+          }
+        ]
+      },
+      {
+        "id": "PayBill.BillType.Elicit",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "What type of bill would you like to pay?"
+          }
+        ]
+      },
+      {
+        "id": "VerifyOTP.OTP.Elicit",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Please provide the OTP code sent to your mobile number."
+          }
+        ]
+      }
+    ]
+  }
+}
+

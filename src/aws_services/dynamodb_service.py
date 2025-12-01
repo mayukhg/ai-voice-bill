@@ -253,6 +253,64 @@ class DynamoDBService:
             logger.error(f"Error getting user: {str(e)}")
             return None
     
+    def get_payment(self, payment_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get a specific payment by ID.
+        
+        Args:
+            payment_id: Payment identifier
+            
+        Returns:
+            dict: Payment dictionary or None
+        """
+        try:
+            response = self.client.get_item(
+                TableName=self.payments_table,
+                Key={'payment_id': {'S': payment_id}}
+            )
+            
+            if 'Item' in response:
+                return self._unmarshal_item(response['Item'])
+            return None
+        except Exception as e:
+            logger.error(f"Error getting payment: {str(e)}")
+            return None
+    
+    def get_user_payments(self, user_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Get payment history for a user.
+        
+        Args:
+            user_id: User identifier
+            limit: Maximum number of payments to return
+            
+        Returns:
+            list: List of payment dictionaries
+        """
+        try:
+            # Scan payments table and filter by user_id
+            # Note: In production, consider using GSI for better performance
+            response = self.client.scan(
+                TableName=self.payments_table,
+                FilterExpression='user_id = :uid',
+                ExpressionAttributeValues={
+                    ':uid': {'S': user_id}
+                },
+                Limit=limit
+            )
+            
+            payments = []
+            for item in response.get('Items', []):
+                payments.append(self._unmarshal_item(item))
+            
+            # Sort by payment_date descending
+            payments.sort(key=lambda x: x.get('payment_date', ''), reverse=True)
+            
+            return payments[:limit]
+        except Exception as e:
+            logger.error(f"Error getting user payments: {str(e)}")
+            return []
+    
     def _marshal_item(self, item: Dict[str, Any]) -> Dict[str, Any]:
         """Convert Python dict to DynamoDB format."""
         marshalled = {}
