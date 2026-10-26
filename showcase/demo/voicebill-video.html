@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VoiceBill — E2E Video Recording</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #000;
+      --ink: #fff;
+      --muted: #c8c8c8;
+      --accent: #5cffb0;
+      --amber: #ffe566;
+      --font-d: "Syne", system-ui, sans-serif;
+      --font-b: "Figtree", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: var(--font-b);
+      overflow: hidden;
+    }
+    .bar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      border-bottom: 1px solid #222;
+      background: #000;
+    }
+    .bar strong { font-family: var(--font-d); color: var(--accent); font-size: 1.05rem; }
+    .bar span { color: var(--muted); font-size: 0.85rem; }
+    .controls { display: flex; gap: 0.5rem; align-items: center; }
+    button {
+      font: inherit; font-weight: 700; border: none; cursor: pointer;
+      padding: 0.5rem 1rem; background: var(--accent); color: #000;
+    }
+    button.ghost { background: transparent; color: #fff; box-shadow: inset 0 0 0 1.5px #fff; }
+    #stage {
+      height: calc(100% - 56px);
+      display: grid;
+      place-items: center;
+      padding: 2rem;
+      position: relative;
+      background: #000;
+    }
+    #frame {
+      width: min(1100px, 96vw);
+      height: min(620px, calc(100vh - 140px));
+      border: 1px solid #2a2a2a;
+      background: #050505;
+      padding: 2rem 2.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    #badge {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      background: var(--accent); color: #000; padding: 0.35rem 0.6rem;
+    }
+    #title {
+      font-family: var(--font-d); font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 800;
+      letter-spacing: -0.03em; color: #fff; max-width: 16ch; line-height: 1.05;
+    }
+    #body { font-size: 1.2rem; line-height: 1.45; color: #fff; max-width: 36rem; }
+    #sub { color: var(--muted); font-size: 1rem; max-width: 34rem; line-height: 1.45; }
+    .list { list-style: none; display: grid; gap: 0.65rem; max-width: 28rem; }
+    .list li {
+      display: flex; justify-content: space-between; gap: 1rem;
+      padding: 0.65rem 0; border-top: 1px solid #2a2a2a; color: #fff; font-weight: 600;
+    }
+    .list .urgent { color: #ff6b6b; }
+    .list .ok { color: var(--accent); }
+    .chat { display: flex; flex-direction: column; gap: 0.65rem; max-width: 34rem; }
+    .bubble { padding: 0.75rem 1rem; max-width: 95%; line-height: 1.4; }
+    .bubble.user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 700; }
+    .bubble.bot { align-self: flex-start; background: #161616; border: 1px solid #333; color: #fff; }
+    .otp {
+      font-family: var(--font-d); font-size: 3rem; font-weight: 800;
+      letter-spacing: 0.28em; color: var(--accent); padding-left: 0.2em;
+    }
+    #caption {
+      position: absolute; left: 2rem; right: 2rem; bottom: 1.25rem;
+      background: rgba(0,0,0,0.92); border-left: 3px solid var(--amber);
+      padding: 0.85rem 1rem; color: #fff; font-size: 1.05rem; line-height: 1.4;
+      max-width: 720px;
+    }
+    #timer { font-variant-numeric: tabular-nums; color: var(--amber); font-weight: 700; min-width: 3rem; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <div>
+      <strong>VoiceBill</strong>
+      <span id="stepLabel"> Ready — press Play, then start screen recording</span>
+    </div>
+    <div class="controls">
+      <span id="timer">0:00</span>
+      <button type="button" id="play">Play demo</button>
+      <button type="button" class="ghost" id="reset">Reset</button>
+    </div>
+  </div>
+
+  <div id="stage">
+    <div id="frame">
+      <div id="badge">DEMO</div>
+      <div id="title">VoiceBill</div>
+      <div id="body">Pay what you owe without picking up your phone.</div>
+      <div id="sub">Ambient reminders on Alexa. OTP-secured payments when you’re ready.</div>
+      <ul class="list hidden" id="billList"></ul>
+      <div class="chat hidden" id="chat"></div>
+      <div class="otp hidden" id="otpCode">482913</div>
+    </div>
+    <div id="caption">Black-background recording surface · high-contrast captions for voiceover</div>
+  </div>
+
+  <script>
+  (function () {
+    const title = document.getElementById("title");
+    const body = document.getElementById("body");
+    const sub = document.getElementById("sub");
+    const billList = document.getElementById("billList");
+    const chat = document.getElementById("chat");
+    const otpCode = document.getElementById("otpCode");
+    const caption = document.getElementById("caption");
+    const stepLabel = document.getElementById("stepLabel");
+    const timerEl = document.getElementById("timer");
+    const badge = document.getElementById("badge");
+
+    const steps = [
+      {
+        t: 0, label: "1 · Landing",
+        cap: "VoiceBill — pay bills by voice. Reminders first, then a secure pay path.",
+        render() {
+          hideExtras();
+          badge.textContent = "LANDING";
+          title.textContent = "VoiceBill";
+          body.textContent = "Pay what you owe without picking up your phone.";
+          sub.textContent = "Ambient reminders on Alexa. OTP-secured payments when you’re ready.";
+          sub.classList.remove("hidden");
+        }
+      },
+      {
+        t: 8, label: "2 · Due bills",
+        cap: "Companion view: Maya has three unpaid bills. Electricity is urgent.",
+        render() {
+          hideExtras();
+          badge.textContent = "DUE BILLS";
+          title.textContent = "Due this week";
+          body.textContent = "Seeded demo user: Maya Chen";
+          sub.classList.add("hidden");
+          billList.classList.remove("hidden");
+          billList.innerHTML =
+            '<li><span>Electricity</span><span class="urgent">$150.00</span></li>' +
+            '<li><span>Streaming</span><span class="urgent">$29.99</span></li>' +
+            '<li><span>Credit card</span><span>$500.00</span></li>';
+        }
+      },
+      {
+        t: 22, label: "3 · Flow 1 Reminders",
+        cap: "Flow 1: “Alexa, ask VoiceBill what’s due?” — spoken summary of bills in 7 days.",
+        render() {
+          hideExtras();
+          badge.textContent = "VOICE · FLOW 1";
+          title.textContent = "Voice session";
+          body.textContent = "";
+          sub.classList.add("hidden");
+          chat.classList.remove("hidden");
+          chat.innerHTML =
+            '<div class="bubble user">Alexa, ask VoiceBill what’s due.</div>' +
+            '<div class="bubble bot">You have 3 bills due. Your electricity bill of $150.00 is due in 5 days. Would you like to pay it now?</div>';
+        }
+      },
+      {
+        t: 45, label: "4 · Pay initiate",
+        cap: "Flow 2: User asks to pay electricity. Skill sends a one-time code — money does not move yet.",
+        render() {
+          hideExtras();
+          badge.textContent = "VOICE · FLOW 2";
+          title.textContent = "Pay electricity";
+          body.textContent = "";
+          sub.classList.add("hidden");
+          chat.classList.remove("hidden");
+          chat.innerHTML =
+            '<div class="bubble user">I want to pay my electricity bill.</div>' +
+            '<div class="bubble bot">Paying electricity for $150.00. An OTP has been sent to your registered mobile. Please provide the code.</div>';
+        }
+      },
+      {
+        t: 70, label: "5 · OTP",
+        cap: "OTP challenge — convenience stops until MFA confirms intent.",
+        render() {
+          hideExtras();
+          badge.textContent = "OTP · SMS SENT";
+          title.textContent = "Confirm with OTP";
+          body.textContent = "Paying Electricity · $150.00";
+          sub.classList.remove("hidden");
+          sub.textContent = 'Say: “The code is four eight two nine one three”';
+          otpCode.classList.remove("hidden");
+        }
+      },
+      {
+        t: 95, label: "6 · Confirmed",
+        cap: "Payment confirmed (mock gateway). Receipt ID for support and peace of mind.",
+        render() {
+          hideExtras();
+          badge.textContent = "PAID";
+          title.textContent = "$150.00";
+          body.textContent = "Electricity bill · PAY-DEMO-88421";
+          sub.classList.remove("hidden");
+          sub.textContent = "“Your payment of one hundred fifty dollars has been processed.”";
+          sub.style.color = "#5cffb0";
+        }
+      },
+      {
+        t: 115, label: "7 · Aftermath",
+        cap: "Remaining bills update. North-star metric: paid-by-due-date rate. Alexa skill is Next on the roadmap.",
+        render() {
+          hideExtras();
+          badge.textContent = "UPDATED BILLS";
+          title.textContent = "Remaining";
+          body.textContent = "Electricity settled today";
+          sub.classList.add("hidden");
+          billList.classList.remove("hidden");
+          billList.innerHTML =
+            '<li><span>Electricity</span><span class="ok">Paid</span></li>' +
+            '<li><span>Streaming</span><span class="urgent">$29.99</span></li>' +
+            '<li><span>Credit card</span><span>$500.00</span></li>';
+        }
+      }
+    ];
+
+    let seconds = 0, timer = null, running = false;
+
+    function hideExtras() {
+      billList.classList.add("hidden");
+      chat.classList.add("hidden");
+      otpCode.classList.add("hidden");
+      sub.style.color = "#c8c8c8";
+    }
+    function fmt(s) {
+      return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+    }
+    function apply() {
+      const step = [...steps].reverse().find(s => seconds >= s.t) || steps[0];
+      stepLabel.textContent = " " + step.label;
+      caption.textContent = step.cap;
+      step.render();
+    }
+    function tick() {
+      seconds += 1;
+      timerEl.textContent = fmt(seconds);
+      apply();
+      if (seconds >= 130) {
+        running = false;
+        clearInterval(timer);
+        document.getElementById("play").textContent = "Play demo";
+        stepLabel.textContent = " Complete — stop recording";
+        caption.textContent = "End card: VoiceBill · PM case study · mockup + Flask API · Alexa on roadmap";
+      }
+    }
+    function play() {
+      if (running) return;
+      running = true;
+      seconds = 0;
+      timerEl.textContent = "0:00";
+      document.getElementById("play").textContent = "Playing…";
+      apply();
+      timer = setInterval(tick, 1000);
+    }
+    function reset() {
+      running = false;
+      clearInterval(timer);
+      seconds = 0;
+      timerEl.textContent = "0:00";
+      document.getElementById("play").textContent = "Play demo";
+      stepLabel.textContent = " Ready — press Play, then start screen recording";
+      caption.textContent = "Black-background recording surface · high-contrast captions for voiceover";
+      steps[0].render();
+    }
+    document.getElementById("play").onclick = play;
+    document.getElementById("reset").onclick = reset;
+    steps[0].render();
+  })();
+  </script>
+</body>
+</html>

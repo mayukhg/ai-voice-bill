@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VoiceBill — PM Explainer Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #000;
+      --ink: #ffffff;
+      --muted: #c0c0c0;
+      --accent: #5cffb0;
+      --amber: #ffe566;
+      --font-d: "Syne", system-ui, sans-serif;
+      --font-b: "Figtree", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #000; color: #fff; font-family: var(--font-b); overflow: hidden; }
+    .chrome {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; justify-content: space-between; padding: 0.75rem 1.25rem;
+      font-size: 0.75rem; color: var(--muted); pointer-events: none;
+    }
+    .chrome strong { color: var(--accent); }
+    #deck { height: 100%; position: relative; }
+    .slide {
+      position: absolute; inset: 0; display: none; padding: 3.75rem 5vw 3rem;
+      background: #000;
+    }
+    .slide.is-active { display: flex; flex-direction: column; justify-content: center; gap: 1rem; animation: in 0.4s ease; }
+    @keyframes in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .eyebrow { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem; font-weight: 700; color: var(--accent); }
+    h1 {
+      font-family: var(--font-d); font-size: clamp(2.8rem, 8vw, 5rem); font-weight: 800;
+      letter-spacing: -0.03em; line-height: 0.95; color: #fff;
+    }
+    h2 {
+      font-family: var(--font-d); font-size: clamp(1.55rem, 3.4vw, 2.3rem); font-weight: 700;
+      letter-spacing: -0.02em; line-height: 1.15; max-width: 22ch; color: #fff;
+    }
+    .lede { font-size: 1.15rem; max-width: 38rem; line-height: 1.45; color: #fff; }
+    .muted, .meta { color: var(--muted); font-size: 0.95rem; line-height: 1.45; max-width: 40rem; }
+    .bullets { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; max-width: 42rem; }
+    .bullets li { padding-left: 1.1rem; position: relative; line-height: 1.4; color: #fff; }
+    .bullets li::before {
+      content: ""; position: absolute; left: 0; top: 0.55em; width: 0.45rem; height: 0.45rem; background: var(--amber);
+    }
+    .callout {
+      margin-top: 0.35rem; padding: 1rem 1.15rem; border-left: 3px solid var(--accent);
+      background: #111; max-width: 40rem; line-height: 1.45; color: #fff;
+    }
+    .two-col, .flow-grid, .roadmap { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 860px; }
+    .roadmap { grid-template-columns: repeat(3, 1fr); }
+    .two-col h3, .flow-grid h3, .roadmap h3 { font-family: var(--font-d); color: var(--accent); margin-bottom: 0.45rem; }
+    .flow-grid article { padding: 1rem 0; border-top: 2px solid var(--accent); color: #fff; }
+    .arch { display: grid; gap: 0.55rem; max-width: 560px; }
+    .arch-node { padding: 0.75rem 1rem; font-weight: 700; }
+    .on { background: var(--accent); color: #000; }
+    .mid { background: var(--amber); color: #000; }
+    .off { box-shadow: inset 0 0 0 1.5px #666; color: var(--muted); }
+    .funnel { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; font-family: var(--font-d); font-weight: 700; }
+    .funnel span:nth-child(odd) { background: #fff; color: #000; padding: 0.45rem 0.7rem; }
+    .funnel span:nth-child(even) { color: var(--accent); }
+    .shot-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem; max-width: 960px; }
+    .shot-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .mini {
+      background: #0d0d0d; border: 1px solid #2a2a2a; padding: 0.85rem; min-height: 160px;
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .mini strong { font-family: var(--font-d); color: var(--accent); font-size: 0.85rem; }
+    .mini p { font-size: 0.82rem; color: #fff; line-height: 1.35; }
+    .mini .amt { color: var(--amber); font-weight: 700; font-size: 1.1rem; }
+    .edge {
+      position: fixed; top: 0; bottom: 0; width: 10vw; max-width: 100px;
+      border: none; background: transparent; cursor: pointer; z-index: 15;
+    }
+    .edge.prev { left: 0; } .edge.next { right: 0; }
+    code { color: var(--amber); font-size: 0.9em; }
+    @media (max-width: 800px) {
+      .two-col, .flow-grid, .roadmap, .shot-row, .shot-row.three { grid-template-columns: 1fr; }
+      h2 { max-width: none; }
+      .slide { padding: 3.25rem 1.25rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="chrome">
+    <span><strong>VoiceBill</strong> · PM Showcase Deck</span>
+    <span><span id="cur">1</span> / <span id="total">14</span> · ← → · F fullscreen</span>
+  </div>
+
+  <main id="deck">
+    <section class="slide is-active">
+      <p class="eyebrow">Product case study</p>
+      <h1>VoiceBill</h1>
+      <p class="lede">Voice-first bill reminders and OTP-secured payments — scoped, demoed, and roadmapped as a PM portfolio piece.</p>
+      <p class="meta">Role: Product Manager · Domain: Consumer fintech / smart home · Partner stack: Flask + AWS</p>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">01 · Problem</p>
+      <h2>People don’t forget bills because paying is hard. They forget because reminders are easy to ignore.</h2>
+      <ul class="bullets">
+        <li>App push and email compete with dozens of other alerts</li>
+        <li>Late fees are high-cost, low-drama failures</li>
+        <li>Paying still means unlocking a phone and hunting the right biller</li>
+      </ul>
+      <p class="callout">Opportunity: meet the user at the speaker with a short, secure path to “paid.”</p>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">02 · Who &amp; JTBD</p>
+      <h2>Primary user</h2>
+      <div class="two-col">
+        <div>
+          <p class="lede"><strong style="color:#5cffb0">Maya, 34</strong> — Echo in the kitchen, pays online, still misses 1–2 bills/year.</p>
+          <p class="muted">JTBD: When I’m busy at home, tell me what’s due and let me settle it without five apps.</p>
+        </div>
+        <div>
+          <p class="lede">Secondary: accessibility / hands-free users.</p>
+          <p class="muted">Buyer: billers/banks cutting “I forgot” support cost.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">03 · Insight</p>
+      <h2>Convenience without a second factor is a non-starter. OTP is the trust bargain.</h2>
+      <ul class="bullets">
+        <li>Voice lists and initiates; money moves only after SMS OTP</li>
+        <li>Matches bank mental models; keeps skill risk narrative credible</li>
+        <li>Voice biometrics explicitly out of scope for v1</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">04 · Solution</p>
+      <h2>Two flows. One product.</h2>
+      <div class="flow-grid">
+        <article>
+          <h3>Flow 1 · Reminders</h3>
+          <p>“What’s due?” → bills in 7 days → spoken summary → offer to pay.</p>
+        </article>
+        <article>
+          <h3>Flow 2 · Pay + OTP</h3>
+          <p>“Pay utility” → amount → SMS OTP → speak code → mock pay → receipt.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">05 · Journey · Flow 1</p>
+      <h2>Due bills + voice reminder</h2>
+      <div class="shot-row">
+        <div class="mini">
+          <strong>Companion · Due this week</strong>
+          <p>Electricity <span class="amt">$150.00</span> · 5 days</p>
+          <p>Streaming $29.99 · 3 days</p>
+          <p>Credit card $500.00 · 10 days</p>
+          <p style="color:#b8b8b8">3 unpaid · $679.99</p>
+        </div>
+        <div class="mini">
+          <strong>Voice · Alexa</strong>
+          <p style="color:#5cffb0">User: “What’s due?”</p>
+          <p>“You have 3 bills due. Your electricity bill of $150.00 is due in 5 days. Pay now?”</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">06 · Journey · Flow 2</p>
+      <h2>Initiate → OTP → paid</h2>
+      <div class="shot-row three">
+        <div class="mini">
+          <strong>Pay intent</strong>
+          <p style="color:#5cffb0">“Pay my electricity bill.”</p>
+          <p>OTP sent to mobile…</p>
+        </div>
+        <div class="mini">
+          <strong>OTP challenge</strong>
+          <p class="amt" style="letter-spacing:0.2em">482913</p>
+          <p>Speak the code to confirm</p>
+        </div>
+        <div class="mini">
+          <strong>Confirmed</strong>
+          <p class="amt">$150.00 paid</p>
+          <p>PAY-DEMO-88421</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">07 · Security</p>
+      <h2>MFA before money. Mock rails on purpose.</h2>
+      <ul class="bullets">
+        <li>6-digit OTP · 5-minute expiry · single-use</li>
+        <li>Gateway mocked — proves UX/risk without PCI scope</li>
+        <li>OAuth account linking on <strong style="color:#ffe566">Next</strong>, not claimed as done</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">08 · Architecture (honest)</p>
+      <h2>What exists vs roadmap</h2>
+      <div class="arch">
+        <div class="arch-node on">Flask API · reminders, bills, pay, Lex webhook</div>
+        <div class="arch-node on">DynamoDB · Polly · SNS wrappers</div>
+        <div class="arch-node mid">Lex fulfillment (session gap to fix)</div>
+        <div class="arch-node off">Alexa skill / ASK · OAuth · proactive events</div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">09 · MVP cuts</p>
+      <h2>Shipped for the story. Cut for credibility.</h2>
+      <div class="two-col">
+        <div>
+          <h3>In</h3>
+          <ul class="bullets">
+            <li>On-demand due list</li>
+            <li>OTP pay path (mock)</li>
+            <li>HTML mockup + API</li>
+            <li>Metrics &amp; roadmap</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Out</h3>
+          <ul class="bullets">
+            <li>Published Alexa skill</li>
+            <li>Real payment gateway</li>
+            <li>Proactive push</li>
+            <li>Preference UI</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">10 · Metrics</p>
+      <h2>North star: paid-by-due-date rate</h2>
+      <div class="funnel">
+        <span>Reminder</span><span>→</span><span>Pay start</span><span>→</span><span>OTP ok</span><span>→</span><span>Paid</span>
+      </div>
+      <ul class="bullets">
+        <li>Target: <strong style="color:#5cffb0">−40%</strong> missed payments vs control</li>
+        <li>Reminder → pay ≥ 25% · OTP success ≥ 90% · session &lt; 2 min</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">11 · Risks</p>
+      <h2>What could kill this</h2>
+      <ul class="bullets">
+        <li><strong style="color:#ffe566">Skill cert / linking</strong> — start OAuth early</li>
+        <li><strong style="color:#ffe566">OTP latency</strong> — set expectation in voice prompt</li>
+        <li><strong style="color:#ffe566">Misheard IDs</strong> — prefer bill type slots in v1</li>
+        <li><strong style="color:#ffe566">Shoulder-surfing</strong> — OTP mandatory + amount read-back</li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">12 · Roadmap</p>
+      <h2>Now · Next · Later</h2>
+      <div class="roadmap">
+        <div><h3>Now</h3><p class="lede">Mockup, deck, video, Flask demo</p></div>
+        <div><h3>Next</h3><p class="lede">Alexa skill, account linking, Lex session fix</p></div>
+        <div><h3>Later</h3><p class="lede">Proactive events, preferences, real rails</p></div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <p class="eyebrow">13 · Demo</p>
+      <h1>See it end-to-end</h1>
+      <ul class="bullets">
+        <li><code>showcase/mockup/voicebill-mockup.html</code></li>
+        <li><code>showcase/demo/voicebill-video.html</code> — record this</li>
+        <li><code>showcase/video/voicebill-e2e-demo.mp4</code></li>
+      </ul>
+      <p class="callout">“I scoped VoiceBill as voice-first bill pay, cut ruthlessly for MVP, and shipped a demoable reminder-to-OTP-pay experience with a clear path to Alexa.”</p>
+    </section>
+  </main>
+
+  <button type="button" class="edge prev" id="prev" aria-label="Previous"></button>
+  <button type="button" class="edge next" id="next" aria-label="Next"></button>
+
+  <script>
+  (function () {
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const cur = document.getElementById("cur");
+    document.getElementById("total").textContent = String(slides.length);
+    let i = 0;
+    function go(n) {
+      i = (n + slides.length) % slides.length;
+      slides.forEach((s, idx) => s.classList.toggle("is-active", idx === i));
+      cur.textContent = String(i + 1);
+    }
+    document.getElementById("prev").onclick = () => go(i - 1);
+    document.getElementById("next").onclick = () => go(i + 1);
+    window.addEventListener("keydown", e => {
+      if (["ArrowRight", " ", "PageDown"].includes(e.key)) { e.preventDefault(); go(i + 1); }
+      else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); go(i - 1); }
+      else if (e.key === "f" || e.key === "F") {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      }
+    });
+    go(0);
+  })();
+  </script>
+</body>
+</html>

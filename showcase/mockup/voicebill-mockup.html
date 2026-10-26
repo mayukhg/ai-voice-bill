@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VoiceBill — Product Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #111111;
+      --ink: #ffffff;
+      --muted: #b8b8b8;
+      --accent: #5cffb0;
+      --accent-2: #ffe566;
+      --danger: #ff6b6b;
+      --ok: #5cffb0;
+      --line: #2a2a2a;
+      --font-d: "Syne", system-ui, sans-serif;
+      --font-b: "Figtree", system-ui, sans-serif;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-b);
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font: inherit; cursor: pointer; }
+    .screen { min-height: 100vh; animation: fadeIn 0.45s var(--ease); }
+    .screen[hidden] { display: none !important; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    .btn {
+      font-weight: 700;
+      border: none;
+      padding: 0.85rem 1.25rem;
+      border-radius: 2px;
+      transition: transform 0.2s var(--ease), filter 0.2s;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      box-shadow: inset 0 0 0 1.5px #fff;
+    }
+    .btn-small { background: var(--ink); color: #000; padding: 0.5rem 0.9rem; font-size: 0.8rem; }
+    .topbar, .app-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1.25rem 1.75rem;
+    }
+    .logo, .brand-hero, .app-header h2 { font-family: var(--font-d); font-weight: 800; letter-spacing: -0.03em; }
+    .logo { font-size: 1.25rem; color: var(--accent); }
+    .nav-link {
+      background: none; border: none; color: var(--muted); margin-left: 1.1rem;
+    }
+    .nav-link:hover { color: var(--accent); }
+    .back { background: none; border: none; font-weight: 700; color: var(--accent); }
+    .screen-lede { padding: 0 1.75rem 1.25rem; color: var(--muted); max-width: 36rem; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+    /* Landing */
+    .screen-landing {
+      background:
+        radial-gradient(ellipse 70% 50% at 75% 45%, rgba(92, 255, 176, 0.12), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 15% 80%, rgba(255, 229, 102, 0.08), transparent 50%),
+        #000;
+      overflow: hidden;
+      position: relative;
+    }
+    .landing-hero { position: relative; z-index: 2; padding: 8vh 1.75rem 2rem; max-width: 42rem; }
+    .brand-hero {
+      font-size: clamp(3.5rem, 12vw, 6.5rem); line-height: 0.92; margin-bottom: 1.25rem; color: #fff;
+      animation: brandRise 0.85s var(--ease);
+    }
+    @keyframes brandRise {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: none; }
+    }
+    .hero-line { font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 600; margin-bottom: 0.65rem; color: #fff; }
+    .hero-sub { color: var(--muted); margin-bottom: 1.75rem; max-width: 28rem; line-height: 1.5; }
+    .landing-visual {
+      position: absolute; right: 6%; bottom: 12%; width: min(40vw, 340px); height: min(40vw, 340px); z-index: 1;
+    }
+    .speaker-silhouette {
+      position: absolute; inset: 22%; border-radius: 50%; background: #1a1a1a;
+      box-shadow: 0 0 80px rgba(92, 255, 176, 0.25); display: grid; place-items: center;
+    }
+    .ring {
+      position: absolute; inset: -12%; border: 1.5px solid rgba(92, 255, 176, 0.55); border-radius: 50%;
+      animation: rip 2.8s var(--ease) infinite;
+    }
+    .ring.delay { animation-delay: 0.9s; inset: -22%; }
+    @keyframes rip {
+      0% { transform: scale(0.85); opacity: 0.8; }
+      100% { transform: scale(1.25); opacity: 0; }
+    }
+
+    /* Bills */
+    .bill-list { list-style: none; padding: 0 1.75rem 6rem; max-width: 640px; }
+    .bill-row {
+      display: grid; grid-template-columns: 1fr auto; gap: 0.35rem 1rem;
+      padding: 1.15rem 0; border-top: 1px solid var(--line); align-items: baseline;
+    }
+    .bill-row.is-paid { opacity: 0.4; text-decoration: line-through; }
+    .bill-type { font-family: var(--font-d); font-weight: 700; text-transform: capitalize; color: #fff; }
+    .bill-due { font-size: 0.85rem; color: var(--muted); grid-column: 1; }
+    .bill-amount { font-weight: 700; font-variant-numeric: tabular-nums; grid-row: 1 / span 2; align-self: center; color: #fff; }
+    .bill-amount.urgent { color: var(--danger); }
+    .app-footer {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 5;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      padding: 1rem 1.75rem; background: rgba(0,0,0,0.92); border-top: 1px solid var(--line); color: #fff;
+    }
+
+    /* Voice */
+    .live-pill {
+      font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+      background: var(--ok); color: #000; padding: 0.35rem 0.65rem;
+    }
+    .live-pill.dim { background: #444; color: #fff; }
+    .live-pill.speak { background: var(--accent-2); color: #000; }
+    .voice-stage { display: grid; gap: 1.5rem; padding: 0.5rem 1.75rem 1.5rem; max-width: 720px; }
+    @media (min-width: 800px) { .voice-stage { grid-template-columns: 240px 1fr; } }
+    .device {
+      background: var(--surface); border: 1px solid var(--line); padding: 1.75rem 1.25rem; min-height: 200px;
+      display: flex; flex-direction: column; justify-content: flex-end; gap: 0.75rem; position: relative; overflow: hidden;
+    }
+    .device-glow {
+      position: absolute; inset: -40%;
+      background: radial-gradient(circle, rgba(92,255,176,0.25), transparent 55%);
+      opacity: 0.25; transition: opacity 0.4s;
+    }
+    .device-glow.active { opacity: 1; animation: pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+    .device-label { position: relative; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+    .device-utterance { position: relative; font-family: var(--font-d); font-weight: 600; font-size: 1.05rem; line-height: 1.35; color: #fff; }
+    .transcript { display: flex; flex-direction: column; gap: 0.75rem; min-height: 200px; }
+    .bubble { max-width: 92%; padding: 0.85rem 1rem; font-size: 0.95rem; line-height: 1.45; animation: fadeIn 0.35s var(--ease); }
+    .bubble.user { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; }
+    .bubble.alexa { align-self: flex-start; background: var(--surface); color: #fff; border: 1px solid var(--line); }
+    .voice-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; padding: 0 1.75rem 2rem; }
+
+    /* OTP */
+    .otp-panel { max-width: 420px; padding: 2rem 1.75rem 3rem; }
+    .otp-context { font-size: 1.1rem; margin-bottom: 0.35rem; color: #fff; }
+    .otp-hint { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.75rem; }
+    .otp-display {
+      font-family: var(--font-d); font-size: 2.75rem; font-weight: 800; letter-spacing: 0.35em;
+      padding-left: 0.35em; margin-bottom: 1rem; color: var(--accent);
+    }
+    .otp-voice { color: var(--muted); margin-bottom: 1.75rem; }
+
+    /* Done */
+    .done-panel { padding: 3rem 1.75rem; max-width: 480px; }
+    .check-burst {
+      width: 64px; height: 64px; border-radius: 50%; background: var(--ok); margin-bottom: 1.5rem; position: relative;
+    }
+    .check-burst::after {
+      content: ""; position: absolute; left: 22px; top: 16px; width: 16px; height: 28px;
+      border: solid #000; border-width: 0 3px 3px 0; transform: rotate(45deg);
+    }
+    .done-amount { font-family: var(--font-d); font-size: 3rem; font-weight: 800; color: #fff; }
+    .done-meta { color: var(--muted); margin: 0.35rem 0 1.25rem; }
+    .done-voice { font-size: 1.05rem; margin-bottom: 2rem; max-width: 22rem; line-height: 1.45; color: #fff; }
+
+    @media (max-width: 600px) {
+      .landing-visual { opacity: 0.35; right: -10%; }
+      .app-footer { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <section id="screen-landing" class="screen screen-landing">
+    <header class="topbar">
+      <span class="logo">VoiceBill</span>
+      <nav>
+        <button type="button" class="nav-link" data-go="bills">Due bills</button>
+        <button type="button" class="nav-link" data-go="voice">Voice session</button>
+      </nav>
+    </header>
+    <div class="landing-hero">
+      <h1 class="brand-hero">VoiceBill</h1>
+      <p class="hero-line">Pay what you owe without picking up your phone.</p>
+      <p class="hero-sub">Ambient reminders on Alexa. OTP-secured payments when you’re ready.</p>
+      <div class="cta-row">
+        <button type="button" class="btn btn-primary" data-go="bills">Open companion</button>
+        <button type="button" class="btn btn-ghost" data-go="voice">Start voice demo</button>
+      </div>
+    </div>
+    <div class="landing-visual" aria-hidden="true">
+      <div class="speaker-silhouette">
+        <span class="ring"></span>
+        <span class="ring delay"></span>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-bills" class="screen" hidden>
+    <header class="app-header">
+      <button type="button" class="back" data-go="landing">← VoiceBill</button>
+      <h2>Due this week</h2>
+      <button type="button" class="btn btn-small" data-go="voice">Ask Alexa</button>
+    </header>
+    <p class="screen-lede">Companion view of what the skill would announce. Seeded demo user: Maya Chen.</p>
+    <ul class="bill-list" id="bill-list"></ul>
+    <footer class="app-footer">
+      <span id="bills-summary"></span>
+      <button type="button" class="btn btn-primary" id="btn-hear">Hear reminders</button>
+    </footer>
+  </section>
+
+  <section id="screen-voice" class="screen" hidden>
+    <header class="app-header">
+      <button type="button" class="back" data-go="bills">← Bills</button>
+      <h2>Voice session</h2>
+      <span class="live-pill" id="live-pill">Listening</span>
+    </header>
+    <div class="voice-stage">
+      <div class="device">
+        <div class="device-glow" id="device-glow"></div>
+        <p class="device-label">Alexa · VoiceBill</p>
+        <p class="device-utterance" id="device-utterance">“Alexa, ask VoiceBill what’s due.”</p>
+      </div>
+      <div class="transcript" id="transcript" role="log" aria-live="polite"></div>
+    </div>
+    <div class="voice-actions">
+      <button type="button" class="btn btn-ghost" id="btn-remind">Flow 1 · Reminders</button>
+      <button type="button" class="btn btn-primary" id="btn-pay">Flow 2 · Pay utility</button>
+      <button type="button" class="btn btn-ghost" data-go="bills">Back to bills</button>
+    </div>
+  </section>
+
+  <section id="screen-otp" class="screen" hidden>
+    <header class="app-header">
+      <button type="button" class="back" data-go="voice">← Voice</button>
+      <h2>Confirm with OTP</h2>
+      <span class="live-pill dim">SMS sent</span>
+    </header>
+    <div class="otp-panel">
+      <p class="otp-context">Paying <strong style="color:#fff">Electricity · $150.00</strong></p>
+      <p class="otp-hint">Code sent to ····7890 · expires in 5:00</p>
+      <div class="otp-display" id="otp-display">482913</div>
+      <p class="otp-voice">Say: <em style="color:#ffe566">“The code is four eight two nine one three”</em></p>
+      <div class="cta-row">
+        <button type="button" class="btn btn-primary" id="btn-verify">Verify &amp; pay</button>
+        <button type="button" class="btn btn-ghost" data-go="voice">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-done" class="screen" hidden>
+    <header class="app-header">
+      <button type="button" class="back" data-go="landing">← Home</button>
+      <h2>Paid</h2>
+    </header>
+    <div class="done-panel">
+      <div class="check-burst" aria-hidden="true"></div>
+      <p class="done-amount">$150.00</p>
+      <p class="done-meta">Electricity bill · PAY-DEMO-88421</p>
+      <p class="done-voice">“Your payment of one hundred fifty dollars has been processed.”</p>
+      <div class="cta-row">
+        <button type="button" class="btn btn-primary" data-go="bills">View remaining bills</button>
+        <button type="button" class="btn btn-ghost" id="btn-reset">Reset demo</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  (function () {
+    const bills = [
+      { id: "BILL-001", label: "Electricity", amount: 150, due: "in 5 days", urgent: true, paid: false },
+      { id: "BILL-003", label: "Streaming", amount: 29.99, due: "in 3 days", urgent: true, paid: false },
+      { id: "BILL-002", label: "Credit card", amount: 500, due: "in 10 days", urgent: false, paid: false }
+    ];
+    const screens = {
+      landing: document.getElementById("screen-landing"),
+      bills: document.getElementById("screen-bills"),
+      voice: document.getElementById("screen-voice"),
+      otp: document.getElementById("screen-otp"),
+      done: document.getElementById("screen-done")
+    };
+    const transcript = document.getElementById("transcript");
+    const deviceUtterance = document.getElementById("device-utterance");
+    const deviceGlow = document.getElementById("device-glow");
+    const livePill = document.getElementById("live-pill");
+    const billList = document.getElementById("bill-list");
+    const billsSummary = document.getElementById("bills-summary");
+
+    function money(n) {
+      return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    }
+    function show(name) {
+      Object.entries(screens).forEach(([k, el]) => { el.hidden = k !== name; });
+      window.scrollTo(0, 0);
+      if (name === "bills") renderBills();
+    }
+    function renderBills() {
+      billList.innerHTML = "";
+      const unpaid = bills.filter(b => !b.paid);
+      bills.forEach(b => {
+        const li = document.createElement("li");
+        li.className = "bill-row" + (b.paid ? " is-paid" : "");
+        li.innerHTML =
+          '<span class="bill-type">' + b.label + '</span>' +
+          '<span class="bill-amount' + (b.urgent && !b.paid ? " urgent" : "") + '">' +
+          money(b.amount) + (b.paid ? " · paid" : "") + "</span>" +
+          '<span class="bill-due">' + (b.paid ? "Settled today" : "Due " + b.due + " · " + b.id) + "</span>";
+        billList.appendChild(li);
+      });
+      billsSummary.textContent = unpaid.length + " unpaid · " + money(unpaid.reduce((s, b) => s + b.amount, 0)) + " outstanding";
+    }
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    function addBubble(who, text) {
+      const div = document.createElement("div");
+      div.className = "bubble " + who;
+      div.textContent = text;
+      transcript.appendChild(div);
+      div.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    function setSpeaking(on, label) {
+      deviceGlow.classList.toggle("active", on);
+      livePill.textContent = label || (on ? "Speaking" : "Listening");
+      livePill.classList.toggle("speak", !!on && label !== "Listening");
+    }
+    async function runReminders() {
+      show("voice");
+      transcript.innerHTML = "";
+      setSpeaking(false, "Listening");
+      deviceUtterance.textContent = "“Alexa, ask VoiceBill what’s due.”";
+      await sleep(400);
+      addBubble("user", "Alexa, ask VoiceBill what’s due.");
+      await sleep(700);
+      setSpeaking(true, "Speaking");
+      const unpaid = bills.filter(b => !b.paid);
+      const first = unpaid[0];
+      const msg = first
+        ? "You have " + unpaid.length + " bills due. Your " + first.label.toLowerCase() +
+          " bill of " + money(first.amount) + " is due " + first.due + ". Would you like to pay it now?"
+        : "You have no bills due at this time.";
+      deviceUtterance.textContent = "“" + msg + "”";
+      addBubble("alexa", msg);
+      await sleep(1200);
+      setSpeaking(false, "Listening");
+    }
+    async function runPay() {
+      show("voice");
+      const util = bills.find(b => b.id === "BILL-001");
+      if (!util || util.paid) {
+        transcript.innerHTML = "";
+        addBubble("alexa", "That electricity bill is already paid. Nice work.");
+        return;
+      }
+      transcript.innerHTML = "";
+      setSpeaking(false, "Listening");
+      deviceUtterance.textContent = "“I want to pay my electricity bill.”";
+      await sleep(350);
+      addBubble("user", "I want to pay my electricity bill.");
+      await sleep(650);
+      setSpeaking(true, "Speaking");
+      const msg = "Paying electricity for " + money(150) + ". An OTP has been sent to your registered mobile. Please provide the code.";
+      deviceUtterance.textContent = "“" + msg + "”";
+      addBubble("alexa", msg);
+      await sleep(1100);
+      setSpeaking(false, "Listening");
+      show("otp");
+    }
+    function verifyPay() {
+      const util = bills.find(b => b.id === "BILL-001");
+      if (util) util.paid = true;
+      show("done");
+    }
+    function resetDemo() {
+      bills.forEach(b => { b.paid = false; });
+      transcript.innerHTML = "";
+      show("landing");
+    }
+
+    document.querySelectorAll("[data-go]").forEach(el => {
+      el.addEventListener("click", () => show(el.getAttribute("data-go")));
+    });
+    document.getElementById("btn-hear").addEventListener("click", runReminders);
+    document.getElementById("btn-remind").addEventListener("click", runReminders);
+    document.getElementById("btn-pay").addEventListener("click", runPay);
+    document.getElementById("btn-verify").addEventListener("click", verifyPay);
+    document.getElementById("btn-reset").addEventListener("click", resetDemo);
+
+    const params = new URLSearchParams(location.search);
+    const initial = params.get("screen");
+    if (initial && screens[initial]) {
+      show(initial);
+      if (params.get("flow") === "remind") runReminders();
+      if (params.get("flow") === "pay") runPay();
+    } else show("landing");
+
+    window.VoiceBillMock = { show, runReminders, runPay, verifyPay, resetDemo, bills };
+  })();
+  </script>
+</body>
+</html>

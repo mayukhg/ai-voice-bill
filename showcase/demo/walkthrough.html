@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VoiceBill — E2E Walkthrough (record this)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0c1f1a;
+      --paper: #e8f2ec;
+      --sea: #0f6b5c;
+      --amber: #e8a317;
+      --font-d: "Syne", sans-serif;
+      --font-b: "Figtree", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-b);
+      background: #071410;
+      color: var(--paper);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    header, footer {
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      background: #0c1f1a;
+    }
+    header strong { font-family: var(--font-d); font-size: 1.1rem; }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    button {
+      font: inherit;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      padding: 0.55rem 1rem;
+      background: var(--sea);
+      color: #fff;
+      border-radius: 2px;
+    }
+    button.secondary { background: transparent; box-shadow: inset 0 0 0 1.5px rgba(232,242,236,0.4); }
+    #caption {
+      position: absolute;
+      left: 1.25rem;
+      right: 1.25rem;
+      bottom: 4.5rem;
+      z-index: 5;
+      background: rgba(12, 31, 26, 0.88);
+      padding: 0.85rem 1.1rem;
+      font-size: 1.05rem;
+      line-height: 1.4;
+      max-width: 640px;
+      border-left: 3px solid var(--amber);
+    }
+    .stage {
+      position: relative;
+      background: #000;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      min-height: calc(100vh - 110px);
+      border: 0;
+      background: var(--paper);
+    }
+    #step-label { opacity: 0.7; font-size: 0.85rem; }
+    #timer { font-variant-numeric: tabular-nums; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong>VoiceBill · E2E walkthrough</strong>
+      <div id="step-label">Ready</div>
+    </div>
+    <div class="controls">
+      <button type="button" id="play">Play demo</button>
+      <button type="button" class="secondary" id="reset">Reset</button>
+      <span id="timer">0:00</span>
+    </div>
+  </header>
+
+  <div class="stage">
+    <iframe id="frame" title="VoiceBill mockup" src="../mockup/index.html"></iframe>
+    <div id="caption">Press <strong>Play demo</strong>, then start screen recording. Captions track the story for voiceover.</div>
+  </div>
+
+  <footer>
+    <span>Target length ~2:00 · 1920×1080 · see VIDEO_SCRIPT.md</span>
+    <a href="../mockup/index.html" style="color:#e8a317">Open mockup alone</a>
+  </footer>
+
+  <script>
+    const frame = document.getElementById("frame");
+    const caption = document.getElementById("caption");
+    const stepLabel = document.getElementById("step-label");
+    const timerEl = document.getElementById("timer");
+    let timer = null;
+    let seconds = 0;
+    let running = false;
+
+    const steps = [
+      { t: 0, screen: "landing", cap: "VoiceBill — pay what you owe without picking up your phone.", label: "1 · Landing" },
+      { t: 8, screen: "bills", cap: "Companion view: Maya has three unpaid bills due soon. Electricity is the urgent one.", label: "2 · Due bills" },
+      { t: 22, screen: "voice", flow: "remind", cap: "Flow 1: “Alexa, ask VoiceBill what’s due?” — spoken summary of bills in the next 7 days.", label: "3 · Reminders" },
+      { t: 45, screen: "voice", flow: "pay", cap: "Flow 2: User asks to pay electricity. Skill sends a one-time code to the registered phone.", label: "4 · Pay initiate" },
+      { t: 70, screen: "otp", cap: "OTP challenge — convenience stops here until the user confirms with MFA.", label: "5 · OTP" },
+      { t: 95, screen: "done", cap: "Payment confirmed (mock gateway). Receipt ID for support and peace of mind.", label: "6 · Confirmed" },
+      { t: 115, screen: "bills", cap: "Remaining bills update. North-star metric: paid-by-due-date rate.", label: "7 · Aftermath" },
+    ];
+
+    function fmt(s) {
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return m + ":" + String(r).padStart(2, "0");
+    }
+
+    function mockApi() {
+      return frame.contentWindow && frame.contentWindow.VoiceBillMock;
+    }
+
+    function applyStep(step) {
+      const api = mockApi();
+      stepLabel.textContent = step.label;
+      caption.innerHTML = step.cap;
+      if (!api) {
+        frame.src = "../mockup/index.html?screen=" + step.screen +
+          (step.flow ? "&flow=" + step.flow : "");
+        return;
+      }
+      if (step.flow === "remind") api.runReminders();
+      else if (step.flow === "pay") api.runPay();
+      else if (step.screen === "done") api.verifyPay();
+      else api.show(step.screen);
+    }
+
+    function tick() {
+      seconds += 1;
+      timerEl.textContent = fmt(seconds);
+      const step = [...steps].reverse().find((s) => seconds >= s.t);
+      if (step) applyStep(step);
+      if (seconds >= 130) stop();
+    }
+
+    function play() {
+      if (running) return;
+      running = true;
+      seconds = 0;
+      timerEl.textContent = "0:00";
+      const api = mockApi();
+      if (api) api.resetDemo();
+      applyStep(steps[0]);
+      timer = setInterval(tick, 1000);
+      document.getElementById("play").textContent = "Playing…";
+    }
+
+    function stop() {
+      running = false;
+      clearInterval(timer);
+      document.getElementById("play").textContent = "Play demo";
+      stepLabel.textContent = "Complete — stop recording";
+    }
+
+    function reset() {
+      stop();
+      seconds = 0;
+      timerEl.textContent = "0:00";
+      frame.src = "../mockup/index.html";
+      caption.innerHTML = "Reset. Press <strong>Play demo</strong> again.";
+      stepLabel.textContent = "Ready";
+    }
+
+    document.getElementById("play").addEventListener("click", play);
+    document.getElementById("reset").addEventListener("click", reset);
+
+    frame.addEventListener("load", () => {
+      /* VoiceBillMock available after load */
+    });
+  </script>
+</body>
+</html>
